@@ -18,6 +18,13 @@ local RESPAWN_PHASE = {
 local currentPhase = RESPAWN_PHASE.READY
 loadOutWepIds = {}
 local resetWeaponsOnSpawn = true
+local refillGauge = false
+
+function fillHackingGauge() 
+    local charManager = sdk.get_managed_singleton("app.CharacterManager")
+    local gauge = charManager:getPlayerHandle():get_Updater():get_PlayerPuzzleControlDriver():get_HackingGauge()
+    gauge:set_RemainingPoint(gauge:get_TotalPoint())
+end
 
 function equipWeapon(wepId)
     local newWep = genWeaponMet(nil, wepId)
@@ -134,6 +141,9 @@ re.on_frame(function()
                 cleanLoadout()
                 resetLoadout()
             end
+            if (refillGauge) then
+                fillHackingGauge()
+            end
             
         end
     end
@@ -148,4 +158,14 @@ re.on_draw_ui(function()
         
         imgui.tree_pop() 
     end
+
+    if imgui.tree_node("[Refill hacking gauge]") then 
+        local changed2, value2 = imgui.checkbox("Refill hacking gauge?", refillGauge)
+        if changed2 then
+            refillGauge = value2
+        end
+        
+        imgui.tree_pop() 
+    end
+
 end)
